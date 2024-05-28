@@ -1,0 +1,26 @@
+.metaMask {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999; /* Set a high z-index value to make it appear above other elements */
+}
+
+.metaMask h4 {
+  color: #333;
+}
+
+.metaMask button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.accountDisplay {
+  margin-top: 10px;
+}
+
+.balanceDisplay {
+  margin-top: 10px;
+}
