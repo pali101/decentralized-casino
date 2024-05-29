@@ -1,16 +1,12 @@
 'use client';
-import { WagmiProvider } from "wagmi";
-import { config } from "./config";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import NavBar from "./Components/navBar";
-const queryClient = new QueryClient();
-
+import NavBar from "./Components/NavBar/navBar";
+import HomePage from "./Components/Home/home";
 export default function Home() {
+  localStorage.setItem("activeTab", "Home");
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
+    <>
         <NavBar />
-      </QueryClientProvider>
-    </WagmiProvider>
+        <HomePage />
+        </>
   );
 }
