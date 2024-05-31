@@ -1,13 +1,15 @@
 "use client";
 import "../../style.css";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ChainSelect from "../Wallet/switchChain";
-import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useBalance, useChainId } from "wagmi";
+import { getExplorerLink } from "./explorer";
 import logo from "../../../../public/JIDOLogo.png";
 
 export default function NavBar() {
   const [showOptions, setShowOptions] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [explorerLink, setExplorerLink] = useState({ link: "", website: "" });
   const [activeTab, setActiveTab] = useState(
     localStorage.getItem("activeTab") || "Home"
   );
@@ -17,6 +19,7 @@ export default function NavBar() {
   const { disconnect } = useDisconnect();
   const { address } = useAccount();
   const { isConnected } = useAccount();
+  const chainId = useChainId()
   const handleOptionClick = (connector) => {
     setShowOptions(false);
     connect({ connector });
@@ -36,11 +39,20 @@ export default function NavBar() {
     setActiveTab(tabName);
     localStorage.setItem("activeTab", tabName);
   };
-
+//  fetch balance
   const balance = useBalance({
     address: address,
     // chainId: arbitrum.id,
   });
+
+  // fetch explorer link
+  useEffect(() => {
+    if (address) {
+      const explorerLink = getExplorerLink(chainId, address);
+      setExplorerLink(explorerLink); 
+    }
+  }, [address, chainId]);
+
   return (
     <div className="nav">
       <div className="navMenu">
@@ -98,8 +110,8 @@ export default function NavBar() {
                     10 ** Number(balance.data?.decimals)
                   ).toFixed(6)}
                 </h1>
-                <a href={`https://arbiscan.io/address/${address}`}>
-                  View on Arbiscan
+                <a href={explorerLink.link} target="_blank">
+                 {explorerLink.website}
                 </a>
               </div>
             </button>
