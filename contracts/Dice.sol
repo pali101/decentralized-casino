@@ -1,27 +1,59 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.19;
 
-import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+contract DiceGame {
+    address public owner;
+    uint256 public minBet;
+    uint256 public maxBet;
 
-contract Dice is ownable, VRFConsumerBase {
-    using SafeMath for uint256;
+    event BetPlaced(address indexed player, uint256 betAmount, uint8 prediction);
+    event DiceRolled(address indexed player, uint8 result, uint256 payout);
 
-    address public owner; // owner of the contract
-    uint256 public minimumBet; // minimum bet amount
-    uint256 public maximumBet; // maximum bet amount
-    uint256 public houseFee;   // house fee in percentage
-    bytes32 internal keyHash; // key hash for chainlink vrf
-    uint256 internal fee;    // fee for chainlink vrf
-    mapping(bytes32 => address) public requestToSender; // mapping from request id to sender
-    mapping(bytes32 => uint256) public requestToBetAmount; // mapping from request id to bet amount
-
-    constructor(uint256 _minimumBet, uint256 _maximumBet, uint256 _houseFee) {
+    constructor(uint256 _minBet, uint256 _maxBet) {
         owner = msg.sender;
-        minimumBet = _minimumBet; 
-        maximumBet = _maximumBet; 
-        houseFee = _houseFee;
+        minBet = _minBet;
+        maxBet = _maxBet;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    function setBetLimits(uint256 _minBet, uint256 _maxBet) external onlyOwner {
+        minBet = _minBet;
+        maxBet = _maxBet;
+    }
+
+    function placeBet(uint8 prediction) external payable {
+        require(msg.value >= minBet && msg.value <= maxBet, "Bet amount out of range");
+        require(prediction >= 1 && prediction <= 6, "Prediction must be between 1 and 6");
+
+        uint8 diceResult = rollDice();
+        uint256 payout = 0;
+
+        if (diceResult == prediction) {
+            payout = msg.value * 6;
+            payable(msg.sender).transfer(payout);
+        }
+
+        emit BetPlaced(msg.sender, msg.value, prediction);
+        emit DiceRolled(msg.sender, diceResult, payout);
+    }
+
+    function rollDice() private view returns (uint8) {
+        uint8 diceResult = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % 6 + 1);
+        return diceResult;
+    }
+
+    function depositFunds() external payable onlyOwner {}
+
+    function withdrawFunds(uint256 amount) external onlyOwner {
+        require(address(this).balance >= amount, "Insufficient funds");
+        payable(owner).transfer(amount);
+    }
+
+    function getContractBalance() external view returns (uint256) {
+        return address(this).balance;
     }
 }
