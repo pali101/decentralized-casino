@@ -1,5 +1,6 @@
 import { useSignMessage } from "wagmi";
-import ReadContract from "../Profile/readContract";
+import ReadContract from "./readContract";
+import  WriteContract  from './writeContract'
 export default function HomePage() {
   const { signMessage } = useSignMessage();
   return (
@@ -9,6 +10,7 @@ export default function HomePage() {
         Sign message
       </button>
       <ReadContract />
+      <WriteContract />
     </div>
   );
 }
