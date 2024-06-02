@@ -32,12 +32,15 @@ contract DiceGame {
         require(prediction >= 1 && prediction <= 6, "Prediction must be between 1 and 6");
 
         uint8 diceResult = rollDice();
+        // uint8 diceResult = 1;
         uint256 payout = 0;
 
         if (diceResult == prediction) {
             payout = msg.value * 6;
             payable(msg.sender).transfer(payout);
         }
+
+        maxBet = address(this).balance / 6;
 
         emit BetPlaced(msg.sender, msg.value, prediction);
         emit DiceRolled(msg.sender, diceResult, payout);
