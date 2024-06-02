@@ -27,23 +27,27 @@ contract DiceGame {
         maxBet = _maxBet;
     }
 
-    function placeBet(uint8 prediction) external payable {
+    function placeBet(uint8 prediction) external payable returns (bool) {
         require(msg.value >= minBet && msg.value <= maxBet, "Bet amount out of range");
         require(prediction >= 1 && prediction <= 6, "Prediction must be between 1 and 6");
 
         uint8 diceResult = rollDice();
         // uint8 diceResult = 1;
         uint256 payout = 0;
+        bool won = false;
 
         if (diceResult == prediction) {
             payout = msg.value * 6;
             payable(msg.sender).transfer(payout);
+            won = true;
         }
 
         maxBet = address(this).balance / 6;
 
         emit BetPlaced(msg.sender, msg.value, prediction);
         emit DiceRolled(msg.sender, diceResult, payout);
+        
+        return won;
     }
 
     function rollDice() private view returns (uint8) {
