@@ -9,7 +9,9 @@ contract DiceGame {
     event BetPlaced(address indexed player, uint256 betAmount, uint8 prediction);
     event DiceRolled(address indexed player, uint8 result, uint256 payout);
 
-    constructor(uint256 _minBet, uint256 _maxBet) {
+    constructor(uint256 _minBet, uint256 _maxBet) payable {
+        require(msg.value >= _maxBet * 6, "Initial deposit must be at least maxBet * 6");
+        
         owner = msg.sender;
         minBet = _minBet;
         maxBet = _maxBet;
@@ -42,7 +44,7 @@ contract DiceGame {
     }
 
     function rollDice() private view returns (uint8) {
-        uint8 diceResult = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % 6 + 1);
+        uint8 diceResult = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender))) % 6 + 1);
         return diceResult;
     }
 
