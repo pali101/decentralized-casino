@@ -1,1 +1,3 @@
 # decentralized-casino
+
+Base Sepolia deployment address: 0x5F29752815d02Ad25784945cCd1A2b3CE8290fC6
